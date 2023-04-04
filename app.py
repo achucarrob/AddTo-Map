@@ -1,23 +1,29 @@
-# flask, flask_googlemaps, flask_restful
+
 from flask import Flask, render_template, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
 from flask_googlemaps import GoogleMaps
 from flask_restful import Resource, Api
+from models import db, Mapas
+import json
+
 
 
 app = Flask(__name__)
+# Configuracion de la base de datos
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mapa.sqlite3'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
+# Config API
 app.config['GOOGLEMAPS_KEY'] = '611638969896-d57uu9m81bgbak25hha661uh8o4hnv2t.apps.googleusercontent.com'
 GoogleMaps(app)
 api = Api(app)
 
-puntos_importantes = [
-            {'name': 'Base de CBVCDE', 'lat':-25.535382 , 'lng':-54.633344 },
-            {'name': 'Base de CBVCDE', 'lat':-25.535382 , 'lng':-54.633444 },
-            {'name': 'Base de CBVCDE', 'lat':-25.535382 , 'lng':-54.633544 }
-        ]
+db.init_app(app)
+
+puntos_importantes = []
 
 class Puntos (Resource):
-    def get(self):
-        return puntos_importantes
+     def get(self):
+         return puntos_importantes
 api.add_resource(Puntos, '/api/puntos')
 
 @app.route('/')
@@ -34,8 +40,16 @@ def agregar():
         puntos_importantes.append(
             {'name': nombre, 'lat': lat, 'lng': lng}
         )
+        datos = Mapas(
+            nombre = nombre,
+            latitud = lat,
+            longitud = lng,
+            categoria = 'prueba'
+        )
+        db.session.add(datos)
+        db.session.commit()
         return redirect(url_for('index'))
     return render_template('agregar.html')
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=1000, debug = True)
+    app.run(host='0.0.0.0', port=1080, debug = True)

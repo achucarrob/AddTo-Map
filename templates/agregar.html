@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
     <title>Document</title>
 </head>
 <body>
-    <form action="/agregar" method="post">
+    <h1>Agregar un punto</h1>
+    <form action="/agregar" method="post"
+    class="pt-40px">
         <input type="text" name="latitud">
         <input type="text" name="longitud">
         <input type="text" name="nombre"> 
-        <input type="submit">
+        <button type="submit">Agregar</button>
     </form>
 </body>
 </html>

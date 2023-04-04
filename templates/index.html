@@ -4,33 +4,95 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--Leafleat CDN-->
     <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <title>Document</title>
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Agregar una nueva ubicacion</title>
     <style>
-        #mapid {height: 700px;}
+        #mapid {height: 400px;}
     </style>
 </head>
-<body>
+<body class="bg-emerald-200">
     <div id="mapid"></div>
+    <!-- Formulario para agregar una nueva ubicacion -->
+    <div class="flex flex-col items-center mt-8">
+        <form action="{{ url_for('agregar') }}" method="post"
+        class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div>
+                <label for="latitud" class="block text-gray-700 font-bold mb-2">
+                    Latitud
+                </label>
+                <input class="block w-full rounded-md border-0 ring-1 ring-inset ring-gray-300"  type="text" name="latitud" id="latitud">
+            </div>
 
+            <div>
+                <label for="longitud" class="block text-gray-700 font-bold mb-2">
+                    Longitud
+                </label>
+                <input class="block w-full rounded-md border-0 ring-1 ring-inset ring-gray-300"  type="text" name="longitud" id="longitud">
+            </div>
+
+            <div class="mb-4">
+                <label for="name" class="block text-gray-700 font-bold mb-2">
+                    Nombre
+                </label>
+            <input class="block w-full rounded-md border-0 px-1.5 ring-1 ring-inset ring-gray-300
+            placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="Nombre facha" id="name" type="text" name="nombre">
+            </div>
+
+            <div class="flex items-center justify-between">
+            <button type="submit" class="rounded bg-cyan-200 hover:bg-blue-700 text-white font-bold py-2 px-4">Add
+            </button>
+            </div>
+        </form>
+    </div>
+
+    
     <script>
+        // Agregar marcadores desde la base de datos
         $.ajax({
             url: '/api/puntos',
             type: 'GET',
             success: function(data) {
-                for (var i = 0; i < data.length; i++) {
-                var marker = L.marker([data[i].lat, data[i].lng]).addTo(mymap);
+                for (var i = 0; i < data.length; i++) {                   
+                            var myIcon = L.icon({
+                        iconUrl: './static/img/fachero.png',
+                        iconSize: [25, 25],
+                        });
+                var marker = L.marker([data[i].lat, data[i].lng], {icon: myIcon}, {riseOnHover:true}).addTo(mymap);
                 marker.bindPopup(data[i].name);
                 }
             }
             });
-        var mymap = L.map('mapid').setView([-25.535382, -54.633344], 16);
+
+        // Crear mapa
+        var mymap = L.map('mapid').setView([-25.535382, -54.633344], 12, {doubleClickZoom:true});
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '',
-            maxZoom: 18,
+            maxZoom: 16,
         }).addTo(mymap);
+
+        // Agregar marcador on click
+
+                var markerAdded = false;
+
+        mymap.on('click', function(e){
+            if (!markerAdded) {
+                var latitud = e.latlng.lat;
+                var longitud = e.latlng.lng;
+                var marker = L.marker([latitud, longitud]).addTo(mymap);
+                markerAdded = true;
+            }
+            var input_lng = document.getElementById("longitud");
+            var input_lat = document.getElementById("latitud");
+            input_lat.value = latitud;
+            input_lng.value = longitud;
+        })
+
+
     </script>
 </body>
 </html>
